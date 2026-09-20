@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildRoomInviteUrl,
+  parseRoomId,
   parseRoomInvite,
   sanitizeDisplayName,
 } from "./room";
@@ -13,6 +14,12 @@ describe("room invite helpers", () => {
     };
     const url = buildRoomInviteUrl("https://example.com", "/movie-night", invite);
     expect(parseRoomInvite(new URL(url).search)).toEqual(invite);
+  });
+
+  it("restores a valid room id without requiring the invite token", () => {
+    expect(
+      parseRoomId("?room=f4e9c3b4-0c48-4c6e-8fd1-4e0b3e64279f"),
+    ).toBe("f4e9c3b4-0c48-4c6e-8fd1-4e0b3e64279f");
   });
 
   it("rejects malformed invite parameters", () => {
