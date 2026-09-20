@@ -115,14 +115,25 @@ Copy the environment template:
 cp .env.example .env.local
 ```
 
-Set:
+Set only your API key:
 
 ```bash
 OPENROUTER_API_KEY=...
-OPENROUTER_MODEL=...
 ```
 
-`OPENROUTER_MODEL` is intentionally not hard-coded because available models and pricing change. Use a model currently available to your OpenRouter account.
+By default, Reel Consensus uses:
+
+```text
+google/gemma-4-31b-it:free
+```
+
+`OPENROUTER_MODEL` remains an optional override, so you can switch models without changing application code:
+
+```bash
+OPENROUTER_MODEL=another/provider-model
+```
+
+The default model is intentionally isolated behind this configuration boundary because free-model availability can change over time.
 
 For local testing of the Vercel API route, use `vercel dev` or deploy the project to Vercel. Plain `vite` development will automatically fall back to the local intent parser because `/api/interpret` is unavailable.
 

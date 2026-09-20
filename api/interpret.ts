@@ -13,6 +13,8 @@ const ALLOWED_GENRES = [
   "thriller",
 ] as const;
 
+const DEFAULT_OPENROUTER_MODEL = "google/gemma-4-31b-it:free";
+
 const ALLOWED_MOODS = [
   "easy",
   "emotional",
@@ -69,8 +71,8 @@ export default {
 
     const env = (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
     const apiKey = env.OPENROUTER_API_KEY;
-    const model = env.OPENROUTER_MODEL;
-    if (!apiKey || !model) {
+    const model = env.OPENROUTER_MODEL?.trim() || DEFAULT_OPENROUTER_MODEL;
+    if (!apiKey) {
       return json({ error: "AI intent parsing is not configured." }, 503);
     }
 
