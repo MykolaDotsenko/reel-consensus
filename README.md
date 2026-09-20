@@ -7,6 +7,10 @@
 
 Reel Consensus is a group movie decision engine. Instead of recommending what one person might like, it tries to find the fairest compromise for everyone in the room — with visible participant scores, hard vetoes, configurable fairness, and explanations for every result.
 
+## Product preview
+
+![Reel Consensus desktop group movie decision engine](docs/screenshots/reel-consensus-desktop.png)
+
 ## Product thesis
 
 Movie night is rarely an information problem. People already have too many options. The hard part is reaching a decision when tastes, moods, time limits, and hard dislikes conflict.
