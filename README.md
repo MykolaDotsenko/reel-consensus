@@ -11,6 +11,14 @@ Reel Consensus is a group movie decision engine. Instead of recommending what on
 
 ![Reel Consensus desktop group movie decision engine](docs/screenshots/reel-consensus-desktop.png)
 
+## Brand identity
+
+![Reel Consensus logo](public/brand/reel-consensus-lockup.svg)
+
+**Less debate. More movie nights.**
+
+The visual identity combines two overlapping film reels / people with a shared check-mark center: different tastes moving toward one fair decision. Production assets live in `public/brand/`; the full usage system is documented in [docs/branding/BRAND.md](docs/branding/BRAND.md).
+
 ## Product thesis
 
 Movie night is rarely an information problem. People already have too many options. The hard part is reaching a decision when tastes, moods, time limits, and hard dislikes conflict.

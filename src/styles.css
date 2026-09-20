@@ -17,12 +17,18 @@
   --border: rgba(247, 241, 232, 0.09);
   --border-strong: rgba(247, 241, 232, 0.17);
 
-  --gold: #f3c66f;
-  --gold-soft: #ffe1a6;
+  --brand-burgundy: #7a1f2b;
+  --brand-black: #0b0b0b;
+  --brand-gold: #d4af37;
+  --brand-cream: #f4e8d1;
+  --brand-lavender: #a78bfa;
+
+  --gold: #e3bd59;
+  --gold-soft: #f6dda0;
   --gold-ink: #2c1d08;
-  --rose: #ee7b70;
-  --wine: #7f3143;
-  --lavender: #b8a6ff;
+  --rose: #ee8178;
+  --wine: var(--brand-burgundy);
+  --lavender: var(--brand-lavender);
   --sage: #9fd4b2;
   --danger: #ff9b96;
 
@@ -153,45 +159,13 @@ a {
   border-radius: 14px;
 }
 
-.brand-mark {
-  width: 44px;
-  height: 44px;
-  position: relative;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(243, 198, 111, 0.26);
-  border-radius: 50%;
-  background: linear-gradient(145deg, rgba(243, 198, 111, 0.16), rgba(127, 49, 67, 0.22));
-  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.015);
-  overflow: hidden;
-}
-
-.brand-mark span {
-  position: absolute;
-  font-family: var(--display);
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.brand-mark span:first-child {
-  left: 10px;
-  top: 9px;
-  color: var(--gold-soft);
-}
-
-.brand-mark span:last-child {
-  right: 9px;
-  bottom: 8px;
-  color: #f0aca3;
-}
-
-.brand-mark::after {
-  content: "";
-  position: absolute;
-  width: 1px;
-  height: 48px;
-  transform: rotate(42deg);
-  background: rgba(255, 255, 255, 0.12);
+.brand-lockup {
+  width: 188px;
+  height: 54px;
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+  filter: drop-shadow(0 10px 24px rgba(212, 175, 55, 0.1));
 }
 
 .brand > span:last-child {
@@ -313,6 +287,10 @@ a {
 .hero h1 em {
   color: var(--gold);
   font-weight: 600;
+  background: linear-gradient(90deg, var(--gold-soft), var(--brand-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-copy > p {
@@ -351,16 +329,20 @@ a {
 }
 
 .primary-button {
-  border: 1px solid #f6d896;
-  background: var(--gold);
+  border: 1px solid #f1d682;
+  background: linear-gradient(135deg, #f1d47a 0%, var(--brand-gold) 100%);
   color: var(--gold-ink);
-  box-shadow: 0 12px 38px rgba(243, 198, 111, 0.13);
+  box-shadow:
+    0 12px 38px rgba(212, 175, 55, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .primary-button:hover {
   transform: translateY(-2px);
-  background: #f8d384;
-  box-shadow: 0 17px 42px rgba(243, 198, 111, 0.19);
+  background: linear-gradient(135deg, #f5dc8c 0%, #dfba49 100%);
+  box-shadow:
+    0 17px 42px rgba(212, 175, 55, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .primary-button--large {
@@ -1776,6 +1758,28 @@ a {
   color: var(--text-soft);
 }
 
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-brand img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.footer-brand p {
+  display: grid;
+  gap: 2px;
+}
+
+.footer-brand span {
+  color: var(--muted-dim);
+  font-size: 0.65rem;
+}
+
 @media (max-width: 1020px) {
   .decision-dock {
     position: static;
@@ -1917,8 +1921,9 @@ a {
 }
 
 @media (max-width: 560px) {
-  .brand small {
-    display: none;
+  .brand-lockup {
+    width: 154px;
+    height: 46px;
   }
 
   .room-pill {

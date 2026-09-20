@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Reel Consensus mark</title>
+  <desc id="desc">Two overlapping film reels forming a shared consensus shape with a check mark.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6dc92"/>
+      <stop offset=".48" stop-color="#d4af37"/>
+      <stop offset="1" stop-color="#a9781f"/>
+    </linearGradient>
+    <linearGradient id="burgundy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9f3343"/>
+      <stop offset="1" stop-color="#5f1420"/>
+    </linearGradient>
+    <linearGradient id="lavender" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c8b9ff"/>
+      <stop offset="1" stop-color="#8f72dc"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="42" cy="20" r="9" fill="url(#burgundy)" stroke="url(#gold)" stroke-width="4"/>
+  <circle cx="86" cy="20" r="9" fill="#17151a" stroke="url(#gold)" stroke-width="4"/>
+
+  <circle cx="47" cy="63" r="34" fill="url(#burgundy)" stroke="url(#gold)" stroke-width="5"/>
+  <circle cx="81" cy="63" r="34" fill="#121116" stroke="url(#gold)" stroke-width="5"/>
+
+  <g fill="#f4e8d1" opacity=".95">
+    <circle cx="32" cy="49" r="6"/>
+    <circle cx="32" cy="76" r="6"/>
+    <circle cx="50" cy="89" r="6"/>
+    <circle cx="96" cy="49" r="6"/>
+    <circle cx="96" cy="76" r="6"/>
+    <circle cx="78" cy="89" r="6"/>
+  </g>
+
+  <path d="M64 31c10 9 16 20 16 32S74 86 64 95C54 86 48 75 48 63s6-23 16-32Z" fill="url(#lavender)" stroke="url(#gold)" stroke-width="3"/>
+  <path d="m56 64 6 6 12-14" fill="none" stroke="#f7df98" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M18 92c16 7 31 10 46 10 16 0 31-3 46-10v14c-15 7-30 10-46 10-15 0-30-3-46-10V92Z" fill="#681722" stroke="url(#gold)" stroke-width="3"/>
+  <g fill="#f4e8d1" opacity=".9">
+    <rect x="28" y="98" width="7" height="6" rx="1"/>
+    <rect x="43" y="102" width="7" height="6" rx="1"/>
+    <rect x="78" y="102" width="7" height="6" rx="1"/>
+    <rect x="93" y="98" width="7" height="6" rx="1"/>
+  </g>
+</svg>
