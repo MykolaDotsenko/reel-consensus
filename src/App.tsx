@@ -139,15 +139,10 @@ export default function App() {
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Reel Consensus home">
           <img
-            className="brand-symbol"
-            src="/brand/reel-consensus-mark.svg"
-            alt=""
-            aria-hidden="true"
+            className="brand-lockup"
+            src="/brand/reel-consensus-lockup.svg"
+            alt="Reel Consensus"
           />
-          <span>
-            <strong>Reel Consensus</strong>
-            <small>Less debate. More movie nights.</small>
-          </span>
         </a>
 
         <div className="header-actions">
