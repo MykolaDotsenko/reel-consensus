@@ -2,7 +2,6 @@ import type {
   DecisionSettings,
   Genre,
   Movie,
-  Mood,
   Participant,
   ParticipantScore,
   RankedMovie,
