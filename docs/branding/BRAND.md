@@ -63,6 +63,14 @@ The compact mark is preferred for favicon, mobile header, app icon, loading stat
 
 The lockup is preferred for marketing surfaces, README, wide headers and Open Graph artwork.
 
+### Generated source references
+
+- `public/brand/reel-consensus-logo-master.webp` — compact transparent raster reference derived from the generated primary logo.
+- `docs/branding/reel-consensus-brand-board.webp` — compressed identity-board reference.
+- `docs/branding/reel-consensus-landing-direction.webp` — compressed landing-page direction reference.
+
+The application deliberately uses the SVG lockup and mark rather than the generated raster in small UI surfaces. The vectors stay crisp at every density, load faster, and preserve the identity at favicon/header sizes. The generated assets remain in the project as the visual source of truth for future marketing and design work.
+
 ## UI mapping
 
 ### Header
