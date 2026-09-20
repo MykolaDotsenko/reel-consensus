@@ -1310,7 +1310,8 @@ a {
 
 .decision-dock {
   position: sticky;
-  bottom: 16px;
+  top: calc(100vh - 98px);
+  top: calc(100dvh - 98px);
   z-index: 10;
   min-height: 82px;
   display: grid;
@@ -1776,6 +1777,10 @@ a {
 }
 
 @media (max-width: 1020px) {
+  .decision-dock {
+    position: static;
+  }
+
   .hero {
     grid-template-columns: 1fr;
   }
