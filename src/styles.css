@@ -159,12 +159,13 @@ a {
   border-radius: 14px;
 }
 
-.brand-symbol {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 auto;
+.brand-lockup {
+  width: 188px;
+  height: 54px;
+  display: block;
   object-fit: contain;
-  filter: drop-shadow(0 10px 24px rgba(212, 175, 55, 0.12));
+  object-position: left center;
+  filter: drop-shadow(0 10px 24px rgba(212, 175, 55, 0.1));
 }
 
 .brand > span:last-child {
@@ -1920,8 +1921,9 @@ a {
 }
 
 @media (max-width: 560px) {
-  .brand small {
-    display: none;
+  .brand-lockup {
+    width: 154px;
+    height: 46px;
   }
 
   .room-pill {
