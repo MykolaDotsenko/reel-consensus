@@ -17,7 +17,12 @@ Reel Consensus is a group movie decision engine. Instead of recommending what on
 
 **Less debate. More movie nights.**
 
-The visual identity combines two overlapping film reels / people with a shared check-mark center: different tastes moving toward one fair decision. Production assets live in `public/brand/`; the full usage system is documented in [docs/branding/BRAND.md](docs/branding/BRAND.md).
+The visual identity combines two overlapping film reels / people with a shared check-mark center: different tastes moving toward one fair decision. Production SVG assets live in `public/brand/`, while generated source references are preserved in the repository for future visual work.
+
+- [Brand system and usage rules](docs/branding/BRAND.md)
+- [Generated logo master](public/brand/reel-consensus-logo-master.webp)
+- [Brand identity board](docs/branding/reel-consensus-brand-board.webp)
+- [Landing-page direction reference](docs/branding/reel-consensus-landing-direction.webp)
 
 ## Product thesis
 
