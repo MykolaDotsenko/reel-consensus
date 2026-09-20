@@ -27,6 +27,35 @@ export const MOODS = [
 export type Genre = (typeof GENRES)[number];
 export type Mood = (typeof MOODS)[number];
 export type FairnessMode = "balanced" | "democratic" | "no-one-hates-it";
+export type MonetizationType = "flatrate" | "free" | "ads" | "rent" | "buy";
+
+export type MovieAvailability = {
+  providerId: number;
+  providerName: string;
+  monetization: MonetizationType;
+  region: string;
+  source: "tmdb-justwatch";
+  sourceUrl: string | null;
+};
+
+export type StreamingProvider = {
+  id: number;
+  name: string;
+  logoUrl: string | null;
+  displayPriority: number;
+};
+
+export type CatalogRegion = {
+  code: string;
+  name: string;
+};
+
+export type PlaybackContext = {
+  region: string;
+  providerIds: number[];
+  monetization: MonetizationType[];
+  requireAvailability: boolean;
+};
 
 export type Movie = {
   id: string;
@@ -39,6 +68,11 @@ export type Movie = {
   summary: string;
   glyph: string;
   accent: string;
+  externalIds?: Array<{ source: "tmdb"; id: string }>;
+  voteCount?: number;
+  posterUrl?: string | null;
+  availability?: MovieAvailability[];
+  source?: "demo" | "tmdb";
 };
 
 export type Participant = {
