@@ -177,14 +177,23 @@ npm run check
 
 The MVP uses a small bundled catalogue so the decision logic is easy to inspect and test. A production version should replace this boundary with a server-side movie/provider data source such as TMDB while keeping the same scoring engine.
 
-## Roadmap
+## Product roadmap
 
-- Real movie discovery/provider integration.
-- Shareable movie-night sessions.
-- Pairwise “Battle Mode” preference learning.
-- Post-watch feedback and preference history.
-- Turn-taking fairness using historical outcomes.
-- “Why not this movie?” conversational explanations.
+The production plan is documented in depth:
+
+- [Product Success Blueprint](docs/PRODUCT_STRATEGY.md) — product loop, five strategic capabilities, retention, distribution, failure modes and success metrics.
+- [Production Architecture](docs/PRODUCTION_ARCHITECTURE.md) — catalogue/provider boundaries, anonymous rooms, Supabase data model, taste learning and fairness memory.
+- [Implementation Roadmap](docs/ROADMAP.md) — phased delivery order, release gates and product exit metrics.
+- [External Constraints & Research](docs/RESEARCH.md) — current TMDB, JustWatch, Watchmode and Supabase constraints that affect architecture.
+
+High-level sequence:
+
+1. anonymous shareable rooms + measurement;
+2. real movie catalogue + country/provider availability;
+3. saved groups + persistent history;
+4. evidence-based taste learning;
+5. capped explainable long-term fairness memory;
+6. distribution and retention optimization.
 
 ## Positioning
 
