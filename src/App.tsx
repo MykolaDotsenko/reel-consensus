@@ -138,13 +138,15 @@ export default function App() {
 
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Reel Consensus home">
-          <span className="brand-mark" aria-hidden="true">
-            <span>R</span>
-            <span>C</span>
-          </span>
+          <img
+            className="brand-symbol"
+            src="/brand/reel-consensus-mark.svg"
+            alt=""
+            aria-hidden="true"
+          />
           <span>
             <strong>Reel Consensus</strong>
-            <small>Better movie nights, together</small>
+            <small>Less debate. More movie nights.</small>
           </span>
         </a>
 
@@ -170,7 +172,7 @@ export default function App() {
         <section className="hero page-width">
           <div className="hero-copy">
             <div className="hero-kicker">
-              <span>Made for couples & groups</span>
+              <span>Less debate. More movie nights.</span>
               <span>Fair by design</span>
             </div>
             <h1>
@@ -497,9 +499,17 @@ export default function App() {
       </main>
 
       <footer className="site-footer page-width">
-        <p>
-          <strong>Reel Consensus</strong> · Less scrolling. Better movie nights.
-        </p>
+        <div className="footer-brand">
+          <img
+            src="/brand/reel-consensus-mark.svg"
+            alt=""
+            aria-hidden="true"
+          />
+          <p>
+            <strong>Reel Consensus</strong>
+            <span>Less debate. More movie nights.</span>
+          </p>
+        </div>
         <p>Built for agreement, not endless recommendations.</p>
       </footer>
     </div>
