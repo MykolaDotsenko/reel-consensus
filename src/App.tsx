@@ -77,11 +77,20 @@ export default function App() {
     }
   };
 
+  const scrollToResults = () => {
+    requestAnimationFrame(() => {
+      const element = resultsRef.current;
+      if (element && typeof element.scrollIntoView === "function") {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  };
+
   const findMovie = () => {
     setDismissedIds([]);
     setFeaturedId(null);
     setHasSearched(true);
-    requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    scrollToResults();
   };
 
   const surpriseUs = () => {
@@ -90,7 +99,7 @@ export default function App() {
     const choice = pool[Math.floor(Math.random() * pool.length)];
     setFeaturedId(choice?.movie.id ?? null);
     setHasSearched(true);
-    requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    scrollToResults();
   };
 
   const resetDemo = () => {
