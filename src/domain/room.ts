@@ -32,6 +32,11 @@ const TOKEN_PATTERN = /^[0-9a-f]{32,128}$/i;
 export const sanitizeDisplayName = (value: string) =>
   value.replace(/\s+/g, " ").trim().slice(0, 40);
 
+export const parseRoomId = (search: string) => {
+  const roomId = new URLSearchParams(search).get("room") ?? "";
+  return UUID_PATTERN.test(roomId) ? roomId : null;
+};
+
 export const parseRoomInvite = (search: string): RoomInvite | null => {
   const params = new URLSearchParams(search);
   const roomId = params.get("room") ?? "";
@@ -52,10 +57,21 @@ export const buildRoomInviteUrl = (
   return url.toString();
 };
 
-export const stripInviteTokenFromUrl = (location: Location) => {
+export const roomMemberLocation = (location: Location, roomId: string) => {
   const url = new URL(location.href);
+  url.searchParams.set("room", roomId);
   url.searchParams.delete("token");
   return `${url.pathname}${url.search}${url.hash}`;
+};
+
+export const stripInviteTokenFromUrl = (location: Location) => {
+  const roomId = parseRoomId(location.search);
+  if (!roomId) {
+    const url = new URL(location.href);
+    url.searchParams.delete("token");
+    return `${url.pathname}${url.search}${url.hash}`;
+  }
+  return roomMemberLocation(location, roomId);
 };
 
 export const participantFromSharedRoom = (
