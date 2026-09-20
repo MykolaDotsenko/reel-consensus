@@ -2,6 +2,9 @@
 
 **Stop scrolling. Agree on something worth watching.**
 
+[![CI](https://github.com/MykolaDotsenko/reel-consensus/actions/workflows/ci.yml/badge.svg)](https://github.com/MykolaDotsenko/reel-consensus/actions/workflows/ci.yml)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/MykolaDotsenko/reel-consensus)
+
 Reel Consensus is a group movie decision engine. Instead of recommending what one person might like, it tries to find the fairest compromise for everyone in the room — with visible participant scores, hard vetoes, configurable fairness, and explanations for every result.
 
 ## Product thesis
@@ -98,7 +101,7 @@ e2e/
 Requires Node.js 22.13+.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
