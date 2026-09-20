@@ -21,6 +21,14 @@ export function ResultCard({
   onDismiss,
 }: ResultCardProps) {
   const { movie } = result;
+  const availability = movie.availability ?? [];
+  const providers = [
+    ...new Map(
+      availability.map((item) => [item.providerId, item.providerName]),
+    ).values(),
+  ];
+  const watchUrl = availability.find((item) => item.sourceUrl)?.sourceUrl ?? null;
+
   const scoreStyle = {
     "--fit-angle": `${result.groupScore * 3.6}deg`,
   } as CSSProperties;
@@ -28,9 +36,17 @@ export function ResultCard({
   return (
     <article className={featured ? "result-card result-card--featured" : "result-card"}>
       <div
-        className="movie-mark"
+        className={movie.posterUrl ? "movie-mark movie-mark--poster" : "movie-mark"}
         style={{ "--movie-accent": movie.accent } as CSSProperties}
       >
+        {movie.posterUrl ? (
+          <img
+            className="movie-mark__poster"
+            src={movie.posterUrl}
+            alt=""
+            loading={featured ? "eager" : "lazy"}
+          />
+        ) : null}
         <div className="movie-mark__topline">
           <span className="movie-mark__rank">
             {featured ? "Best compromise" : `Option #${rank}`}
@@ -38,9 +54,13 @@ export function ResultCard({
           <span className="movie-mark__year">{movie.year}</span>
         </div>
 
-        <span className="movie-mark__glyph" aria-hidden="true">
-          {movie.glyph}
-        </span>
+        {!movie.posterUrl ? (
+          <span className="movie-mark__glyph" aria-hidden="true">
+            {movie.glyph}
+          </span>
+        ) : (
+          <span className="movie-mark__poster-spacer" aria-hidden="true" />
+        )}
 
         <div className="movie-mark__title">
           <strong>{movie.title}</strong>
@@ -75,6 +95,22 @@ export function ResultCard({
             <span>★ {movie.rating.toFixed(1)}</span>
           </div>
         </div>
+
+        {providers.length ? (
+          <div className="watch-row">
+            <span className="watch-row__label">Watch on</span>
+            <div className="watch-row__providers">
+              {providers.slice(0, 4).map((provider) => (
+                <span key={provider}>{provider}</span>
+              ))}
+            </div>
+            {watchUrl ? (
+              <a href={watchUrl} target="_blank" rel="noreferrer">
+                Availability ↗
+              </a>
+            ) : null}
+          </div>
+        ) : null}
 
         <p className="movie-summary">{movie.summary}</p>
 

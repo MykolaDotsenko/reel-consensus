@@ -92,6 +92,8 @@ Test:
 
 # Phase 2 — Real catalogue + availability
 
+**Implementation status (2026-09-21): core code complete; activation requires a TMDB API Read Access Token in the deployment environment.**
+
 ## Objective
 
 Turn the product from a demo into something a group can trust tonight.

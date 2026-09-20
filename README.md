@@ -62,6 +62,9 @@ people + preferences + vetoes + shared brief
   - visible trade-offs.
 - “Not tonight” reranking.
 - “Surprise us” from the current high-fit pool.
+- Optional real TMDB movie catalogue.
+- Country-aware streaming availability with provider filtering.
+- JustWatch-attributed watch-provider data before group scoring.
 - Responsive desktop/mobile UI.
 - Unit, interaction, and Playwright coverage.
 
@@ -95,7 +98,9 @@ src/
 └── App.tsx              session composition + product flow
 
 api/
-└── interpret.ts         optional OpenRouter serverless intent parser
+├── interpret.ts         optional OpenRouter serverless intent parser
+├── providers.ts         TMDB regions + streaming-provider directory
+└── catalog.ts           filtered real-movie candidate pool
 
 e2e/
 └── smoke.spec.ts        critical browser flows
@@ -128,7 +133,9 @@ The product works without AI configuration.
 
 The single-device demo works without a backend. Live multi-device rooms activate when a Supabase project is configured.
 
-1. Apply `supabase/migrations/0001_shareable_rooms.sql` to the project.
+1. Apply the migrations in order:
+   - `supabase/migrations/0001_shareable_rooms.sql`
+   - `supabase/migrations/0002_playback_context.sql`
 2. Enable Anonymous Sign-Ins in Supabase Auth.
 3. Add the public project values:
 
@@ -138,6 +145,26 @@ VITE_SUPABASE_ANON_KEY=<publishable-or-anon-key>
 ```
 
 The browser never receives a service-role key. Invite tokens are exchanged for room membership by database RPC, room reads/writes are protected by RLS, and the invite token is removed from the guest URL immediately after a successful join.
+
+## Optional real catalogue configuration
+
+The bundled demo catalogue remains a safe fallback. To activate real movie discovery and country/provider availability, add a **server-side** TMDB API Read Access Token:
+
+```bash
+TMDB_ACCESS_TOKEN=...
+```
+
+Do not expose this token with a `VITE_` prefix.
+
+When configured, Reel Consensus:
+
+1. loads supported watch-provider regions and services;
+2. applies country, provider, monetization, runtime and rating filters during TMDB discovery;
+3. removes participant/group veto genres before enrichment;
+4. enriches a bounded candidate pool with runtime, keywords and watch-provider data;
+5. rejects movies with no matching availability before the deterministic group decision engine runs.
+
+Streaming-provider data is supplied by TMDB through its JustWatch partnership and is attributed in the UI. The app links to the TMDB-provided availability destination rather than inventing provider deep links.
 
 ## Optional AI configuration
 
@@ -190,7 +217,12 @@ npm run check
 
 ## Data scope
 
-The MVP uses a small bundled catalogue so the decision logic is easy to inspect and test. A production version should replace this boundary with a server-side movie/provider data source such as TMDB while keeping the same scoring engine.
+The product now has two catalogue modes:
+
+- **Live** — TMDB discovery + country/provider availability, normalized behind Reel Consensus domain contracts.
+- **Demo fallback** — the original bundled catalogue, used when TMDB is intentionally unconfigured or temporarily unavailable.
+
+TMDB-specific IDs, genre IDs and response shapes never enter the decision engine. Availability is a hard pre-ranking constraint when live mode is active.
 
 ## Product roadmap
 
@@ -213,3 +245,10 @@ High-level sequence:
 ## Positioning
 
 This is intentionally not another movie search or favorites app. The core product is **multi-person decision support**: make disagreement measurable, preserve vetoes, and optimize for a compromise people can actually accept.
+
+
+## Data attribution
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+Streaming availability data is powered by JustWatch through TMDB. Availability may change; Reel Consensus treats provider data as a current best-effort signal rather than a guarantee.
