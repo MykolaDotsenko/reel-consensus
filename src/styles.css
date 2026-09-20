@@ -26,11 +26,12 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 320px; scroll-behavior: smooth; background: var(--bg); }
+html { min-width: 320px; overflow-x: clip; background: var(--bg); }
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: clip;
   color: var(--text);
   background:
     radial-gradient(circle at 15% -10%, rgba(149, 128, 255, 0.18), transparent 31rem),
@@ -45,6 +46,11 @@ a { color: inherit; }
 :focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
 
 .page-width { width: min(1220px, calc(100% - 44px)); margin-inline: auto; }
+.hero > *,
+.builder-grid > *,
+.section-intro > *,
+.decision-cta > *,
+.result-card > * { min-width: 0; }
 .skip-link {
   position: fixed; top: 12px; left: 12px; z-index: 100; transform: translateY(-160%);
   padding: 10px 14px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 800; text-decoration: none;
