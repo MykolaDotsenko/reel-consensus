@@ -13,11 +13,11 @@ Reel Consensus is a group movie decision engine. Instead of recommending what on
 
 ## Brand identity
 
-<img src="public/brand/reel-consensus-logo-primary.png" alt="Reel Consensus generated primary logo" width="640" />
+<img src="public/brand/reel-consensus-logo-master.webp" alt="Reel Consensus generated primary logo" width="640" />
 
 **Less debate. More movie nights.**
 
-The identity combines two film reels / people with a shared check-mark center: different tastes moving toward one fair decision. The generated transparent logo is preserved in the repository as the visual master, while the application uses lightweight SVG derivatives for crisp rendering at UI sizes.
+The identity combines two film reels / people with a shared check-mark center: different tastes moving toward one fair decision. A compact transparent version of the generated logo is preserved in the repository as the visual master reference, while the application uses lightweight SVG derivatives for crisp rendering at UI sizes.
 
 - [Brand system and usage rules](docs/branding/BRAND.md)
 - [Brand identity board](docs/branding/reel-consensus-brand-board.webp)

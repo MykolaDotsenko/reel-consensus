@@ -67,12 +67,11 @@ The lockup is preferred for the application header, footer, README and other wid
 
 ### Generated master / source assets
 
-- `public/brand/reel-consensus-logo-primary.png` — original generated transparent primary logo preserved as the visual source of truth.
-- `public/brand/reel-consensus-mark.png` — raster icon-only derivative for places that explicitly require PNG.
+- `public/brand/reel-consensus-logo-master.webp` — compact transparent raster reference derived from the generated primary logo.
 - `docs/branding/reel-consensus-brand-board.webp` — compressed brand identity board.
 - `docs/branding/reel-consensus-landing-direction.webp` — compressed landing-page direction reference.
 
-The generated PNG is intentionally **not** used as a tiny navigation image: the production SVG lockup is sharper, lighter and more legible at UI sizes. The reference boards guide hierarchy, mood and palette; they are not embedded as literal application screens.
+The generated master is preserved as the visual source reference, while the application deliberately uses the production SVG lockup and mark: they are sharper, lighter and more legible at UI sizes. The reference boards guide hierarchy, mood and palette; they are not embedded as literal application screens.
 
 ## UI mapping
 
