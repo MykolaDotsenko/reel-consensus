@@ -19,7 +19,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /add person/i }));
+    await user.click(screen.getByRole("button", { name: /add another person/i }));
     expect(screen.getByLabelText("Participant 3 name")).toHaveValue("Guest 3");
   });
 });
