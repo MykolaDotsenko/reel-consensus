@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   buildRoomInviteUrl,
+  parseRoomId,
   parseRoomInvite,
   participantFromSharedRoom,
+  roomMemberLocation,
   sanitizeDisplayName,
   stripInviteTokenFromUrl,
   type RoomInvite,
@@ -40,6 +42,10 @@ export const useSharedRoom = ({
     typeof window === "undefined" ? null : parseRoomInvite(window.location.search),
   );
   const [shareInvite, setShareInvite] = useState<RoomInvite | null>(null);
+  const initialRoomId = useMemo(
+    () => (typeof window === "undefined" ? null : parseRoomId(window.location.search)),
+    [],
+  );
   const [error, setError] = useState<string | null>(null);
   const roomRef = useRef<SharedRoom | null>(null);
   const selfUserIdRef = useRef<string | null>(null);
@@ -59,6 +65,42 @@ export const useSharedRoom = ({
     const nextRoom = await roomGateway.fetchRoom(roomId);
     applyRoom(nextRoom);
   }, [applyRoom]);
+
+  useEffect(() => {
+    if (!config.roomsEnabled || invite || room || !initialRoomId) return;
+
+    let cancelled = false;
+    setStatus("joining");
+
+    void (async () => {
+      try {
+        const userId = await roomGateway.currentUserId();
+        const restored = await roomGateway.fetchRoom(initialRoomId);
+        if (cancelled) return;
+
+        selfUserIdRef.current = userId;
+        setSelfUserId(userId);
+        applyRoom(restored);
+
+        const storedToken = sessionStorage.getItem(
+          `reel-consensus:room-invite:${initialRoomId}`,
+        );
+        if (storedToken) {
+          setShareInvite({ roomId: initialRoomId, token: storedToken });
+        }
+
+        setStatus("active");
+      } catch {
+        if (cancelled) return;
+        setStatus("idle");
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [applyRoom, config.roomsEnabled, initialRoomId, invite, room]);
 
   useEffect(() => {
     if (!config.roomsEnabled || !room?.id) return undefined;
@@ -90,8 +132,17 @@ export const useSharedRoom = ({
         brief,
       });
       setShareInvite(created.invite);
+      sessionStorage.setItem(
+        `reel-consensus:room-invite:${created.room.id}`,
+        created.invite.token,
+      );
       setInvite(null);
       applyRoom(created.room);
+      window.history.replaceState(
+        {},
+        "",
+        roomMemberLocation(window.location, created.room.id),
+      );
       setStatus("active");
       trackProductEvent({
         name: "room_created",
