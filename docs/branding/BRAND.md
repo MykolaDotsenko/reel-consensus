@@ -56,12 +56,23 @@ Use the system sans-serif stack for controls, labels, chips, forms and explanato
 
 ## Logo assets
 
+### Production vectors
+
 - `public/brand/reel-consensus-mark.svg` — compact product mark.
 - `public/brand/reel-consensus-lockup.svg` — full horizontal identity.
 
 The compact mark is preferred for favicon, mobile header, app icon, loading state and small social/avatar usage.
 
-The lockup is preferred for marketing surfaces, README, wide headers and Open Graph artwork.
+The lockup is preferred for the application header, footer, README and other wide product surfaces.
+
+### Generated master / source assets
+
+- `public/brand/reel-consensus-logo-primary.png` — original generated transparent primary logo preserved as the visual source of truth.
+- `public/brand/reel-consensus-mark.png` — raster icon-only derivative for places that explicitly require PNG.
+- `docs/branding/reel-consensus-brand-board.webp` — compressed brand identity board.
+- `docs/branding/reel-consensus-landing-direction.webp` — compressed landing-page direction reference.
+
+The generated PNG is intentionally **not** used as a tiny navigation image: the production SVG lockup is sharper, lighter and more legible at UI sizes. The reference boards guide hierarchy, mood and palette; they are not embedded as literal application screens.
 
 ## UI mapping
 
