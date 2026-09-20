@@ -10,7 +10,7 @@ import {
   type RoomInvite,
   type SharedRoom,
 } from "../domain/room";
-import type { DecisionSettings, Participant } from "../domain/types";
+import type { DecisionSettings, Participant, PlaybackContext } from "../domain/types";
 import { getRuntimeConfig } from "../lib/runtimeConfig";
 import { roomGateway } from "../lib/roomGateway";
 import { trackProductEvent } from "../lib/productEvents";
@@ -20,18 +20,22 @@ type Status = "idle" | "creating" | "joining" | "active" | "error";
 type UseSharedRoomArgs = {
   participant: Participant;
   settings: DecisionSettings;
+  playback: PlaybackContext;
   brief: string;
   onRemoteParticipants: (participants: Participant[]) => void;
   onRemoteSettings: (settings: DecisionSettings) => void;
+  onRemotePlayback: (playback: PlaybackContext) => void;
   onRemoteBrief: (brief: string) => void;
 };
 
 export const useSharedRoom = ({
   participant,
   settings,
+  playback,
   brief,
   onRemoteParticipants,
   onRemoteSettings,
+  onRemotePlayback,
   onRemoteBrief,
 }: UseSharedRoomArgs) => {
   const config = useMemo(() => getRuntimeConfig(), []);
@@ -56,9 +60,10 @@ export const useSharedRoom = ({
       setRoom(nextRoom);
       onRemoteParticipants(nextRoom.participants.map(participantFromSharedRoom));
       onRemoteSettings(nextRoom.settings);
+      onRemotePlayback(nextRoom.playback);
       onRemoteBrief(nextRoom.brief);
     },
-    [onRemoteBrief, onRemoteParticipants, onRemoteSettings],
+    [onRemoteBrief, onRemoteParticipants, onRemotePlayback, onRemoteSettings],
   );
 
   const refreshRoom = useCallback(async (roomId: string) => {
@@ -129,6 +134,7 @@ export const useSharedRoom = ({
         displayName,
         participant,
         settings,
+        playback,
         brief,
       });
       setShareInvite(created.invite);
@@ -154,7 +160,7 @@ export const useSharedRoom = ({
       setStatus("error");
       setError(reason instanceof Error ? reason.message : "Could not create the room.");
     }
-  }, [applyRoom, brief, config.roomsEnabled, participant, settings]);
+  }, [applyRoom, brief, config.roomsEnabled, participant, playback, settings]);
 
   const joinRoom = useCallback(async (displayName: string) => {
     if (!config.roomsEnabled || !invite) return;
@@ -212,6 +218,21 @@ export const useSharedRoom = ({
     }
   }, []);
 
+  const syncPlaybackContext = useCallback(async (nextPlayback: PlaybackContext) => {
+    const activeRoom = roomRef.current;
+    if (!activeRoom) return;
+
+    try {
+      await roomGateway.updatePlaybackContext(activeRoom.id, nextPlayback);
+    } catch (reason) {
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Could not sync streaming availability.",
+      );
+    }
+  }, []);
+
   const setReady = useCallback(async (ready: boolean) => {
     const activeRoom = roomRef.current;
     if (!activeRoom) return;
@@ -254,6 +275,7 @@ export const useSharedRoom = ({
     joinRoom,
     syncSelfParticipant,
     syncRoomConfig,
+    syncPlaybackContext,
     setReady,
   };
 };

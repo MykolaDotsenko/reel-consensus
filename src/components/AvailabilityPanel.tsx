@@ -77,11 +77,23 @@ export function AvailabilityPanel({
     const remaining = value.monetization.filter(
       (type) => !INCLUDED_TYPES.includes(type),
     );
+    if (includedActive && remaining.length === 0) return;
+
     onChange({
       ...value,
       monetization: includedActive
         ? remaining
         : [...new Set([...remaining, ...INCLUDED_TYPES])],
+    });
+  };
+
+  const toggleSingleMonetization = (type: MonetizationType) => {
+    if (value.monetization.includes(type) && value.monetization.length === 1) {
+      return;
+    }
+    onChange({
+      ...value,
+      monetization: toggleMonetization(value.monetization, type),
     });
   };
 
@@ -167,15 +179,7 @@ export function AvailabilityPanel({
                     : "preference-chip"
                 }
                 disabled={status !== "ready"}
-                onClick={() =>
-                  onChange({
-                    ...value,
-                    monetization: toggleMonetization(
-                      value.monetization,
-                      type,
-                    ),
-                  })
-                }
+                onClick={() => toggleSingleMonetization(type)}
               >
                 {type === "rent" ? "Rent" : "Buy"}
               </button>

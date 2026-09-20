@@ -9,6 +9,7 @@ import {
   GENRES,
   type Genre,
   type MonetizationType,
+  type Movie,
   type PlaybackContext,
 } from "../src/domain/types";
 import {
@@ -296,7 +297,7 @@ export default {
       });
 
       const movies = normalized
-        .filter((movie): movie is NonNullable<typeof movie> => movie !== null)
+        .filter((movie): movie is Movie => movie !== null)
         .slice(0, 18);
 
       return json({

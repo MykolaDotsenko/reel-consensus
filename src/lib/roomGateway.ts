@@ -1,4 +1,4 @@
-import { GENRES, MOODS, type DecisionSettings, type Genre, type Mood, type Participant } from "../domain/types";
+import { GENRES, MOODS, type DecisionSettings, type Genre, type MonetizationType, type Mood, type Participant, type PlaybackContext } from "../domain/types";
 import type { RoomInvite, RoomLifecycleState, RoomRole, SharedRoom, SharedRoomParticipant } from "../domain/room";
 import { ensureAnonymousIdentity, getSupabaseClient } from "./supabaseClient";
 
@@ -11,6 +11,10 @@ type RoomRow = {
   min_rating: number | null;
   excluded_genres: string[] | null;
   fairness_mode: DecisionSettings["fairnessMode"];
+  region: string | null;
+  provider_ids: number[] | null;
+  monetization_types: string[] | null;
+  require_availability: boolean | null;
   expires_at: string;
 };
 
@@ -32,6 +36,25 @@ const asGenres = (values: string[] | null): Genre[] =>
 const asMoods = (values: string[] | null): Mood[] =>
   (values ?? []).filter((value): value is Mood => MOODS.includes(value as Mood));
 
+const ALLOWED_MONETIZATION: MonetizationType[] = [
+  "flatrate",
+  "free",
+  "ads",
+  "rent",
+  "buy",
+];
+
+const asMonetization = (values: string[] | null): MonetizationType[] => {
+  const parsed = (values ?? []).filter(
+    (value): value is MonetizationType =>
+      ALLOWED_MONETIZATION.includes(value as MonetizationType),
+  );
+  return parsed.length ? parsed : ["flatrate", "free", "ads"];
+};
+
+const normalizeRegion = (value: string | null) =>
+  value && /^[A-Z]{2}$/.test(value.toUpperCase()) ? value.toUpperCase() : "US";
+
 const requireClient = () => {
   const client = getSupabaseClient();
   if (!client) throw new Error("Shared rooms are not configured.");
@@ -48,6 +71,14 @@ const mapRoom = (room: RoomRow, members: MemberRow[]): SharedRoom => ({
     minRating: room.min_rating,
     excludedGenres: asGenres(room.excluded_genres),
     fairnessMode: room.fairness_mode,
+  },
+  playback: {
+    region: normalizeRegion(room.region),
+    providerIds: (room.provider_ids ?? []).filter(
+      (value) => Number.isInteger(value) && value > 0,
+    ),
+    monetization: asMonetization(room.monetization_types),
+    requireAvailability: room.require_availability !== false,
   },
   participants: members
     .map<SharedRoomParticipant>((member) => ({
@@ -72,6 +103,7 @@ export type CreateRoomInput = {
   displayName: string;
   participant: Participant;
   settings: DecisionSettings;
+  playback: PlaybackContext;
   brief: string;
 };
 
@@ -102,11 +134,14 @@ export class SupabaseRoomGateway {
       throw new Error("Room creation returned an invalid response.");
     }
 
-    await this.updateParticipant(roomId, {
-      ...input.participant,
-      id: userId,
-      name: input.displayName,
-    });
+    await Promise.all([
+      this.updateParticipant(roomId, {
+        ...input.participant,
+        id: userId,
+        name: input.displayName,
+      }),
+      this.updatePlaybackContext(roomId, input.playback),
+    ]);
 
     return {
       room: await this.fetchRoom(roomId),
@@ -179,6 +214,23 @@ export class SupabaseRoomGateway {
         min_rating: settings.minRating,
         excluded_genres: settings.excludedGenres,
         fairness_mode: settings.fairnessMode,
+      })
+      .eq("id", roomId);
+
+    if (error) throw error;
+  }
+
+  async updatePlaybackContext(roomId: string, playback: PlaybackContext) {
+    const client = requireClient();
+    await ensureAnonymousIdentity();
+
+    const { error } = await client
+      .from("rooms")
+      .update({
+        region: playback.region.toUpperCase(),
+        provider_ids: playback.providerIds,
+        monetization_types: playback.monetization,
+        require_availability: playback.requireAvailability,
       })
       .eq("id", roomId);
 
