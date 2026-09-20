@@ -20,9 +20,10 @@ type ParticipantCardProps = {
   canRemove: boolean;
   onChange: (participant: Participant) => void;
   onRemove: () => void;
+  readOnly?: boolean;
 };
 
-export function ParticipantCard({ participant, index, canRemove, onChange, onRemove }: ParticipantCardProps) {
+export function ParticipantCard({ participant, index, canRemove, onChange, onRemove, readOnly = false }: ParticipantCardProps) {
   const updateLikedGenre = (genre: Genre) => {
     const likedGenres = toggle(participant.likedGenres, genre);
     const avoidedGenres = likedGenres.includes(genre)
@@ -49,6 +50,7 @@ export function ParticipantCard({ participant, index, canRemove, onChange, onRem
             value={participant.name}
             maxLength={24}
             aria-label={`Participant ${index + 1} name`}
+            disabled={readOnly}
             onChange={(event) => onChange({ ...participant, name: event.target.value })}
           />
         </label>
@@ -64,6 +66,7 @@ export function ParticipantCard({ participant, index, canRemove, onChange, onRem
         values={GENRES}
         selected={participant.likedGenres}
         onToggle={updateLikedGenre}
+        disabled={readOnly}
       />
       <ChipGroup
         label="Mood"
@@ -71,6 +74,7 @@ export function ParticipantCard({ participant, index, canRemove, onChange, onRem
         selected={participant.moods}
         onToggle={(mood) => onChange({ ...participant, moods: toggle(participant.moods, mood) })}
         format={(mood) => moodLabel[mood]}
+        disabled={readOnly}
       />
       <ChipGroup
         label="Hard no"
@@ -78,6 +82,7 @@ export function ParticipantCard({ participant, index, canRemove, onChange, onRem
         selected={participant.avoidedGenres}
         onToggle={updateAvoidedGenre}
         tone="danger"
+        disabled={readOnly}
       />
     </article>
   );

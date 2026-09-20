@@ -7,6 +7,7 @@ type ChipGroupProps<T extends string> = {
   onToggle: (value: T) => void;
   format?: (value: T) => ReactNode;
   tone?: "default" | "danger";
+  disabled?: boolean;
 };
 
 const titleCase = (value: string) =>
@@ -22,6 +23,7 @@ export function ChipGroup<T extends string>({
   onToggle,
   format,
   tone = "default",
+  disabled = false,
 }: ChipGroupProps<T>) {
   return (
     <fieldset className="chip-fieldset">
@@ -35,6 +37,7 @@ export function ChipGroup<T extends string>({
               type="button"
               className={`preference-chip${active ? " preference-chip--active" : ""}${tone === "danger" ? " preference-chip--danger" : ""}`}
               aria-pressed={active}
+              disabled={disabled}
               onClick={() => onToggle(value)}
             >
               {format ? format(value) : titleCase(value)}

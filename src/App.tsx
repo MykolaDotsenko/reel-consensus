@@ -1,12 +1,15 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { IntentComposer } from "./components/IntentComposer";
 import { ParticipantCard } from "./components/ParticipantCard";
 import { ResultCard } from "./components/ResultCard";
+import { RoomControls } from "./components/RoomControls";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { MOVIES } from "./data/movies";
 import { rankMovies } from "./domain/decisionEngine";
 import type { DecisionSettings, Participant, SharedIntent } from "./domain/types";
 import { interpretIntent } from "./lib/interpretIntent";
+import { trackProductEvent } from "./lib/productEvents";
+import { useSharedRoom } from "./hooks/useSharedRoom";
 
 const INITIAL_PARTICIPANTS: Participant[] = [
   {
@@ -63,6 +66,25 @@ export default function App() {
   const [featuredId, setFeaturedId] = useState<string | null>(null);
   const resultsRef = useRef<HTMLElement>(null);
 
+  const applyRemoteParticipants = useCallback((next: Participant[]) => {
+    setParticipants(next);
+  }, []);
+  const applyRemoteSettings = useCallback((next: DecisionSettings) => {
+    setSettings(next);
+  }, []);
+  const applyRemoteBrief = useCallback((next: string) => {
+    setBrief(next);
+  }, []);
+
+  const sharedRoom = useSharedRoom({
+    participant: participants[0] ?? INITIAL_PARTICIPANTS[0]!,
+    settings,
+    brief,
+    onRemoteParticipants: applyRemoteParticipants,
+    onRemoteSettings: applyRemoteSettings,
+    onRemoteBrief: applyRemoteBrief,
+  });
+
   const ranked = useMemo(
     () => rankMovies({ movies: MOVIES, participants, settings, intent, dismissedIds }),
     [participants, settings, intent, dismissedIds],
@@ -83,6 +105,17 @@ export default function App() {
     setParticipants((current) =>
       current.map((item) => (item.id === participant.id ? participant : item)),
     );
+
+    if (sharedRoom.room && participant.id === sharedRoom.selfUserId) {
+      void sharedRoom.syncSelfParticipant(participant);
+    }
+  };
+
+  const updateSettings = (nextSettings: DecisionSettings) => {
+    setSettings(nextSettings);
+    if (sharedRoom.room) {
+      void sharedRoom.syncRoomConfig(nextSettings, brief);
+    }
   };
 
   const interpretBrief = async () => {
@@ -90,6 +123,9 @@ export default function App() {
     try {
       const { intent: interpreted } = await interpretIntent(brief);
       setIntent(interpreted);
+      if (sharedRoom.room) {
+        void sharedRoom.syncRoomConfig(settings, brief);
+      }
     } finally {
       setIsInterpreting(false);
     }
@@ -105,6 +141,15 @@ export default function App() {
   };
 
   const findMovie = () => {
+    if (sharedRoom.room) {
+      void sharedRoom.syncRoomConfig(settings, brief);
+    }
+    trackProductEvent({
+      name: "decision_requested",
+      roomId: sharedRoom.room?.id,
+      participantCount: activePeople.length,
+      source: "button",
+    });
     setDismissedIds([]);
     setFeaturedId(null);
     setHasSearched(true);
@@ -163,6 +208,21 @@ export default function App() {
         </div>
       </header>
 
+      <div className="room-controls-wrap page-width">
+        <RoomControls
+          roomsEnabled={sharedRoom.roomsEnabled}
+          status={sharedRoom.status}
+          room={sharedRoom.room}
+          selfParticipant={sharedRoom.selfParticipant}
+          pendingInvite={sharedRoom.pendingInvite}
+          inviteUrl={sharedRoom.inviteUrl}
+          error={sharedRoom.error}
+          onCreateRoom={sharedRoom.createRoom}
+          onJoinRoom={sharedRoom.joinRoom}
+          onSetReady={sharedRoom.setReady}
+        />
+      </div>
+
       <main id="top">
         <section className="hero page-width">
           <div className="hero-copy">
@@ -184,7 +244,13 @@ export default function App() {
               <a href="#decision-builder" className="primary-button">
                 Start tonight's pick <span aria-hidden="true">→</span>
               </a>
-              <button type="button" className="ghost-button" onClick={resetDemo}>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={resetDemo}
+                disabled={Boolean(sharedRoom.room)}
+                title={sharedRoom.room ? "Reset is disabled while a shared room is active." : undefined}
+              >
                 Reset demo
               </button>
             </div>
@@ -296,7 +362,8 @@ export default function App() {
                 key={participant.id}
                 participant={participant}
                 index={index}
-                canRemove={participants.length > 1}
+                canRemove={!sharedRoom.room && participants.length > 1}
+                readOnly={Boolean(sharedRoom.room && participant.id !== sharedRoom.selfUserId)}
                 onChange={updateParticipant}
                 onRemove={() =>
                   setParticipants((current) =>
@@ -310,7 +377,7 @@ export default function App() {
           <button
             className="add-person-button"
             type="button"
-            disabled={participants.length >= 5}
+            disabled={Boolean(sharedRoom.room) || participants.length >= 5}
             onClick={() =>
               setParticipants((current) => [
                 ...current,
@@ -319,7 +386,7 @@ export default function App() {
             }
           >
             <span aria-hidden="true">+</span>
-            Add another person
+            {sharedRoom.room ? "Invite people from the room bar" : "Add another person"}
           </button>
         </section>
 
@@ -344,7 +411,7 @@ export default function App() {
               onChange={setBrief}
               onInterpret={interpretBrief}
             />
-            <SettingsPanel settings={settings} onChange={setSettings} />
+            <SettingsPanel settings={settings} onChange={updateSettings} />
           </div>
         </section>
 
@@ -414,6 +481,13 @@ export default function App() {
                     rank={ranked.findIndex((item) => item.movie.id === result.movie.id) + 1}
                     featured={index === 0}
                     onDismiss={(movieId) => {
+                      trackProductEvent({
+                        name: "candidate_dismissed",
+                        roomId: sharedRoom.room?.id,
+                        participantCount: activePeople.length,
+                        movieId,
+                        source: "button",
+                      });
                       setDismissedIds((current) => [...current, movieId]);
                       if (featuredId === movieId) setFeaturedId(null);
                     }}

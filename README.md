@@ -124,6 +124,21 @@ npm run dev
 
 The product works without AI configuration.
 
+## Optional shared-room configuration
+
+The single-device demo works without a backend. Live multi-device rooms activate when a Supabase project is configured.
+
+1. Apply `supabase/migrations/0001_shareable_rooms.sql` to the project.
+2. Enable Anonymous Sign-Ins in Supabase Auth.
+3. Add the public project values:
+
+```bash
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<publishable-or-anon-key>
+```
+
+The browser never receives a service-role key. Invite tokens are exchanged for room membership by database RPC, room reads/writes are protected by RLS, and the invite token is removed from the guest URL immediately after a successful join.
+
 ## Optional AI configuration
 
 Copy the environment template:
