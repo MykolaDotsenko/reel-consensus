@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run test && npm run build",
-    "screenshot": "node scripts/capture-readme-screenshot.mjs"
+    "screenshot": "node scripts/capture-readme-screenshot.mjs",
+    "verify:production": "node scripts/verify-production.mjs"
   },
   "dependencies": {
     "react": "19.3.0",

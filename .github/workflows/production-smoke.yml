@@ -1,0 +1,41 @@
+name: Production smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Production or preview URL, e.g. https://reel-consensus.vercel.app"
+        required: true
+        type: string
+      require_live_catalog:
+        description: "Fail unless TMDB is configured and live"
+        required: true
+        default: true
+        type: boolean
+      require_shared_rooms:
+        description: "Fail unless Supabase public env is configured"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Verify production
+        run: >-
+          node scripts/verify-production.mjs
+          --url "${{ inputs.base_url }}"
+          --require-live-catalog "${{ inputs.require_live_catalog }}"
+          --require-shared-rooms "${{ inputs.require_shared_rooms }}"
