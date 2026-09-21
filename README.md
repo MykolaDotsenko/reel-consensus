@@ -136,6 +136,7 @@ The single-device demo works without a backend. Live multi-device rooms activate
 1. Apply the migrations in order:
    - `supabase/migrations/0001_shareable_rooms.sql`
    - `supabase/migrations/0002_playback_context.sql`
+   - `supabase/migrations/0003_room_security_hardening.sql`
 2. Enable Anonymous Sign-Ins in Supabase Auth.
 3. Add the public project values:
 
@@ -144,7 +145,7 @@ VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<publishable-or-anon-key>
 ```
 
-The browser never receives a service-role key. Invite tokens are exchanged for room membership by database RPC, room reads/writes are protected by RLS, and the invite token is removed from the guest URL immediately after a successful join.
+The browser never receives a service-role key. Invite tokens are exchanged for room membership by database RPC, room reads/writes are protected by RLS plus explicit Data API grants, and the invite token is removed from the guest URL immediately after a successful join. In shared rooms, the host controls shared rules/playback context; each member can only update their own preference/ready columns.
 
 ## Optional real catalogue configuration
 

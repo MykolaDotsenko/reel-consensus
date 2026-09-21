@@ -111,6 +111,9 @@ export default function App() {
     onRemoteBrief: applyRemoteBrief,
   });
 
+  const sharedRoomIsHost =
+    !sharedRoom.room || sharedRoom.selfUserId === sharedRoom.room.hostUserId;
+
   const ranked = useMemo(
     () =>
       rankMovies({
@@ -145,6 +148,7 @@ export default function App() {
   };
 
   const updateSettings = (nextSettings: DecisionSettings) => {
+    if (!sharedRoomIsHost) return;
     setSettings(nextSettings);
     if (sharedRoom.room) {
       void sharedRoom.syncRoomConfig(nextSettings, brief);
@@ -152,6 +156,7 @@ export default function App() {
   };
 
   const updatePlayback = (nextPlayback: PlaybackContext) => {
+    if (!sharedRoomIsHost) return;
     setPlayback(nextPlayback);
     setCatalogMovies(MOVIES);
     setCatalogMode("demo");
@@ -162,6 +167,7 @@ export default function App() {
   };
 
   const interpretBrief = async () => {
+    if (!sharedRoomIsHost) return;
     setIsInterpreting(true);
     try {
       const { intent: interpreted } = await interpretIntent(brief);
@@ -215,7 +221,7 @@ export default function App() {
   };
 
   const findMovie = async () => {
-    if (sharedRoom.room) {
+    if (sharedRoom.room && sharedRoomIsHost) {
       void sharedRoom.syncRoomConfig(settings, brief);
       void sharedRoom.syncPlaybackContext(playback);
     }
@@ -526,16 +532,24 @@ export default function App() {
               value={brief}
               intent={intent}
               isLoading={isInterpreting}
-              onChange={setBrief}
+              onChange={(value) => {
+                if (sharedRoomIsHost) setBrief(value);
+              }}
               onInterpret={interpretBrief}
+              readOnly={!sharedRoomIsHost}
             />
-            <SettingsPanel settings={settings} onChange={updateSettings} />
+            <SettingsPanel
+              settings={settings}
+              onChange={updateSettings}
+              readOnly={!sharedRoomIsHost}
+            />
           </div>
 
           <AvailabilityPanel
             value={playback}
             onChange={updatePlayback}
             onCatalogueStatusChange={setCatalogAvailable}
+            readOnly={!sharedRoomIsHost}
           />
         </section>
 

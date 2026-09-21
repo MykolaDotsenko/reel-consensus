@@ -13,6 +13,7 @@ type Props = {
   value: PlaybackContext;
   onChange: (value: PlaybackContext) => void;
   onCatalogueStatusChange: (available: boolean) => void;
+  readOnly?: boolean;
 };
 
 const INCLUDED_TYPES: MonetizationType[] = ["flatrate", "free", "ads"];
@@ -34,6 +35,7 @@ export function AvailabilityPanel({
   value,
   onChange,
   onCatalogueStatusChange,
+  readOnly = false,
 }: Props) {
   const [status, setStatus] = useState<AvailabilityStatus>("loading");
   const [regions, setRegions] = useState<CatalogRegion[]>([]);
@@ -131,7 +133,7 @@ export function AvailabilityPanel({
           <span>Country</span>
           <select
             value={value.region}
-            disabled={status !== "ready"}
+            disabled={readOnly || status !== "ready"}
             onChange={(event) =>
               onChange({
                 ...value,
@@ -178,7 +180,7 @@ export function AvailabilityPanel({
                     ? "preference-chip preference-chip--active"
                     : "preference-chip"
                 }
-                disabled={status !== "ready"}
+                disabled={readOnly || status !== "ready"}
                 onClick={() => toggleSingleMonetization(type)}
               >
                 {type === "rent" ? "Rent" : "Buy"}
@@ -208,6 +210,7 @@ export function AvailabilityPanel({
                   : "provider-chip"
               }
               aria-pressed={value.providerIds.length === 0}
+              disabled={readOnly}
               onClick={() => onChange({ ...value, providerIds: [] })}
             >
               Any service
@@ -224,6 +227,7 @@ export function AvailabilityPanel({
                       : "provider-chip"
                   }
                   aria-pressed={active}
+                  disabled={readOnly}
                   onClick={() =>
                     onChange({
                       ...value,

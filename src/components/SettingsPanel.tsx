@@ -44,6 +44,7 @@ const FAIRNESS: Array<{
 type SettingsPanelProps = {
   settings: DecisionSettings;
   onChange: (settings: DecisionSettings) => void;
+  readOnly?: boolean;
 };
 
 const toggleGenre = (values: Genre[], genre: Genre) =>
@@ -51,7 +52,7 @@ const toggleGenre = (values: Genre[], genre: Genre) =>
     ? values.filter((item) => item !== genre)
     : [...values, genre];
 
-export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
+export function SettingsPanel({ settings, onChange, readOnly = false }: SettingsPanelProps) {
   return (
     <section className="settings-card" aria-labelledby="settings-heading">
       <div className="card-eyebrow">
@@ -77,6 +78,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
               key={option.label}
               type="button"
               className={settings.maxRuntime === option.value ? "segment segment--active" : "segment"}
+              disabled={readOnly}
               aria-pressed={settings.maxRuntime === option.value}
               onClick={() => onChange({ ...settings, maxRuntime: option.value })}
             >
@@ -98,6 +100,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
                   ? "fairness-option fairness-option--active"
                   : "fairness-option"
               }
+              disabled={readOnly}
               aria-pressed={settings.fairnessMode === option.value}
               onClick={() => onChange({ ...settings, fairnessMode: option.value })}
             >
@@ -128,7 +131,8 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
                   key={option.label}
                   type="button"
                   className={settings.minRating === option.value ? "segment segment--active" : "segment"}
-                  aria-pressed={settings.minRating === option.value}
+                  disabled={readOnly}
+              aria-pressed={settings.minRating === option.value}
                   onClick={() => onChange({ ...settings, minRating: option.value })}
                 >
                   {option.label}
@@ -148,6 +152,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
               })
             }
             tone="danger"
+            disabled={readOnly}
           />
         </div>
       </details>
