@@ -196,6 +196,23 @@ The default model is intentionally isolated behind this configuration boundary b
 
 For local testing of the Vercel API route, use `vercel dev` or deploy the project to Vercel. Plain `vite` development will automatically fall back to the local intent parser because `/api/interpret` is unavailable.
 
+## Production activation
+
+Production code is complete, but live TMDB/Supabase capabilities require external resources and credentials that are intentionally not committed.
+
+See [docs/PRODUCTION_ACTIVATION.md](docs/PRODUCTION_ACTIVATION.md) for the release runbook.
+
+After deployment:
+
+```bash
+npm run verify:production -- \
+  --url https://<deployment>.vercel.app \
+  --require-live-catalog true \
+  --require-shared-rooms true
+```
+
+The verifier checks the root app, `/api/health`, Finland provider discovery, a Finland live-catalogue query, availability invariants, and the presence of the Supabase client configuration.
+
 ## Quality commands
 
 ```bash
