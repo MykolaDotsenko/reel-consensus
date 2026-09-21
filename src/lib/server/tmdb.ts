@@ -1,6 +1,5 @@
 import type {
   Genre,
-  MonetizationType,
   Mood,
   Movie,
   MovieAvailability,
