@@ -1,12 +1,21 @@
 import { useCallback, useMemo, useRef, useState } from "react";
+import { AvailabilityPanel } from "./components/AvailabilityPanel";
 import { IntentComposer } from "./components/IntentComposer";
 import { ParticipantCard } from "./components/ParticipantCard";
 import { ResultCard } from "./components/ResultCard";
 import { RoomControls } from "./components/RoomControls";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { MOVIES } from "./data/movies";
+import { makeInitialPlaybackContext } from "./domain/catalog";
 import { rankMovies } from "./domain/decisionEngine";
-import type { DecisionSettings, Participant, SharedIntent } from "./domain/types";
+import type {
+  DecisionSettings,
+  Movie,
+  Participant,
+  PlaybackContext,
+  SharedIntent,
+} from "./domain/types";
+import { fetchRealCatalog } from "./lib/catalogClient";
 import { interpretIntent } from "./lib/interpretIntent";
 import { trackProductEvent } from "./lib/productEvents";
 import { useSharedRoom } from "./hooks/useSharedRoom";
@@ -58,6 +67,18 @@ const participantInitials = (name: string, index: number) => {
 export default function App() {
   const [participants, setParticipants] = useState<Participant[]>(INITIAL_PARTICIPANTS);
   const [settings, setSettings] = useState<DecisionSettings>(INITIAL_SETTINGS);
+  const [playback, setPlayback] = useState<PlaybackContext>(() =>
+    makeInitialPlaybackContext(
+      typeof navigator === "undefined" ? undefined : navigator.language,
+    ),
+  );
+  const [catalogMovies, setCatalogMovies] = useState<Movie[]>(MOVIES);
+  const [catalogAvailable, setCatalogAvailable] = useState(false);
+  const [catalogMode, setCatalogMode] = useState<
+    "demo" | "loading" | "live" | "fallback"
+  >("demo");
+  const [catalogMessage, setCatalogMessage] = useState<string | null>(null);
+  const [isFinding, setIsFinding] = useState(false);
   const [brief, setBrief] = useState("Something clever and fun, no horror, under 2 hours.");
   const [intent, setIntent] = useState<SharedIntent | null>(null);
   const [isInterpreting, setIsInterpreting] = useState(false);
@@ -72,6 +93,9 @@ export default function App() {
   const applyRemoteSettings = useCallback((next: DecisionSettings) => {
     setSettings(next);
   }, []);
+  const applyRemotePlayback = useCallback((next: PlaybackContext) => {
+    setPlayback(next);
+  }, []);
   const applyRemoteBrief = useCallback((next: string) => {
     setBrief(next);
   }, []);
@@ -79,15 +103,24 @@ export default function App() {
   const sharedRoom = useSharedRoom({
     participant: participants[0] ?? INITIAL_PARTICIPANTS[0]!,
     settings,
+    playback,
     brief,
     onRemoteParticipants: applyRemoteParticipants,
     onRemoteSettings: applyRemoteSettings,
+    onRemotePlayback: applyRemotePlayback,
     onRemoteBrief: applyRemoteBrief,
   });
 
   const ranked = useMemo(
-    () => rankMovies({ movies: MOVIES, participants, settings, intent, dismissedIds }),
-    [participants, settings, intent, dismissedIds],
+    () =>
+      rankMovies({
+        movies: catalogMovies,
+        participants,
+        settings,
+        intent,
+        dismissedIds,
+      }),
+    [catalogMovies, participants, settings, intent, dismissedIds],
   );
 
   const visibleResults = useMemo(() => {
@@ -118,6 +151,16 @@ export default function App() {
     }
   };
 
+  const updatePlayback = (nextPlayback: PlaybackContext) => {
+    setPlayback(nextPlayback);
+    setCatalogMovies(MOVIES);
+    setCatalogMode("demo");
+    setCatalogMessage(null);
+    if (sharedRoom.room) {
+      void sharedRoom.syncPlaybackContext(nextPlayback);
+    }
+  };
+
   const interpretBrief = async () => {
     setIsInterpreting(true);
     try {
@@ -140,9 +183,41 @@ export default function App() {
     });
   };
 
-  const findMovie = () => {
+  const loadCandidatePool = async () => {
+    if (!catalogAvailable) {
+      return {
+        movies: MOVIES,
+        mode: "demo" as const,
+        message: "Demo catalogue · configure TMDB for live availability.",
+      };
+    }
+
+    setCatalogMode("loading");
+    try {
+      const response = await fetchRealCatalog({
+        playback,
+        settings,
+        participants,
+        intent,
+      });
+      return {
+        movies: response.movies,
+        mode: "live" as const,
+        message: `Live catalogue · ${response.region} · ${response.movies.length} watchable candidates`,
+      };
+    } catch {
+      return {
+        movies: MOVIES,
+        mode: "fallback" as const,
+        message: "Live catalogue unavailable · showing clearly marked demo data.",
+      };
+    }
+  };
+
+  const findMovie = async () => {
     if (sharedRoom.room) {
       void sharedRoom.syncRoomConfig(settings, brief);
+      void sharedRoom.syncPlaybackContext(playback);
     }
     trackProductEvent({
       name: "decision_requested",
@@ -150,24 +225,67 @@ export default function App() {
       participantCount: activePeople.length,
       source: "button",
     });
+
+    setIsFinding(true);
     setDismissedIds([]);
     setFeaturedId(null);
-    setHasSearched(true);
-    scrollToResults();
+    try {
+      const pool = await loadCandidatePool();
+      setCatalogMovies(pool.movies);
+      setCatalogMode(pool.mode);
+      setCatalogMessage(pool.message);
+      setHasSearched(true);
+      scrollToResults();
+    } finally {
+      setIsFinding(false);
+    }
   };
 
-  const surpriseUs = () => {
-    const pool = ranked.slice(0, Math.min(5, ranked.length));
-    if (!pool.length) return;
-    const choice = pool[Math.floor(Math.random() * pool.length)];
-    setFeaturedId(choice?.movie.id ?? null);
-    setHasSearched(true);
-    scrollToResults();
+  const surpriseUs = async () => {
+    setIsFinding(true);
+    try {
+      const next = await loadCandidatePool();
+      const nextRanked = rankMovies({
+        movies: next.movies,
+        participants,
+        settings,
+        intent,
+        dismissedIds: [],
+      });
+      const pool = nextRanked.slice(0, Math.min(5, nextRanked.length));
+      if (!pool.length) {
+        setCatalogMovies(next.movies);
+        setCatalogMode(next.mode);
+        setCatalogMessage(next.message);
+        setHasSearched(true);
+        scrollToResults();
+        return;
+      }
+
+      const choice = pool[Math.floor(Math.random() * pool.length)];
+      setCatalogMovies(next.movies);
+      setCatalogMode(next.mode);
+      setCatalogMessage(next.message);
+      setDismissedIds([]);
+      setFeaturedId(choice?.movie.id ?? null);
+      setHasSearched(true);
+      scrollToResults();
+    } finally {
+      setIsFinding(false);
+    }
   };
 
   const resetDemo = () => {
     setParticipants(INITIAL_PARTICIPANTS);
     setSettings(INITIAL_SETTINGS);
+    setPlayback(
+      makeInitialPlaybackContext(
+        typeof navigator === "undefined" ? undefined : navigator.language,
+      ),
+    );
+    setCatalogMovies(MOVIES);
+    setCatalogMode("demo");
+    setCatalogMessage(null);
     setBrief("Something clever and fun, no horror, under 2 hours.");
     setIntent(null);
     setDismissedIds([]);
@@ -413,6 +531,12 @@ export default function App() {
             />
             <SettingsPanel settings={settings} onChange={updateSettings} />
           </div>
+
+          <AvailabilityPanel
+            value={playback}
+            onChange={updatePlayback}
+            onCatalogueStatusChange={setCatalogAvailable}
+          />
         </section>
 
         <section className="decision-dock page-width" aria-label="Current movie night summary">
@@ -435,6 +559,12 @@ export default function App() {
           <div className="decision-facts" aria-label="Current hard constraints">
             <span>{runtimeLabel}</span>
             <span>{ratingLabel}</span>
+            <span>{playback.region}</span>
+            <span>
+              {playback.providerIds.length
+                ? `${playback.providerIds.length} services`
+                : "Any service"}
+            </span>
             {settings.excludedGenres.length ? (
               <span>{settings.excludedGenres.length} group vetoes</span>
             ) : null}
@@ -444,11 +574,18 @@ export default function App() {
             <button
               className="primary-button primary-button--large"
               type="button"
-              onClick={findMovie}
+              disabled={isFinding}
+              onClick={() => void findMovie()}
             >
-              Find our movie <span aria-hidden="true">→</span>
+              {isFinding ? "Checking availability…" : "Find our movie"}{" "}
+              {!isFinding ? <span aria-hidden="true">→</span> : null}
             </button>
-            <button className="ghost-button" type="button" onClick={surpriseUs}>
+            <button
+              className="ghost-button"
+              type="button"
+              disabled={isFinding}
+              onClick={() => void surpriseUs()}
+            >
               Surprise us
             </button>
           </div>
@@ -466,10 +603,24 @@ export default function App() {
                 <div className="section-kicker">The decision</div>
                 <h2 id="results-heading">Best compromises, explained.</h2>
               </div>
-              <p>
-                {ranked.length} eligible movies remain after every hard constraint.
-                The first option is the strongest group compromise.
-              </p>
+              <div className="results-intro-copy">
+                <p>
+                  {ranked.length} eligible movies remain after every hard constraint.
+                  The first option is the strongest group compromise.
+                </p>
+                <span
+                  className={
+                    catalogMode === "live"
+                      ? "catalog-result-note catalog-result-note--live"
+                      : "catalog-result-note"
+                  }
+                >
+                  {catalogMessage ??
+                    (catalogMode === "loading"
+                      ? "Checking live catalogue…"
+                      : "Demo catalogue")}
+                </span>
+              </div>
             </div>
 
             {visibleResults.length ? (
@@ -499,8 +650,9 @@ export default function App() {
                 <span aria-hidden="true">∅</span>
                 <h3>No fair match survives the hard constraints.</h3>
                 <p>
-                  Relax runtime, rating, or one of the vetoes. Reel Consensus will not
-                  silently ignore a rule the group set.
+                  {catalogMode === "live"
+                    ? "Try another streaming service, allow rent/buy, or relax runtime or rating. Hard vetoes stay hard."
+                    : "Relax runtime, rating, or one of the vetoes. Reel Consensus will not silently ignore a rule the group set."}
                 </p>
                 <button
                   type="button"

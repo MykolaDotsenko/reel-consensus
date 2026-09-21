@@ -1,4 +1,4 @@
-import type { DecisionSettings, Participant } from "./types";
+import type { DecisionSettings, Participant, PlaybackContext } from "./types";
 
 export type RoomLifecycleState = "setup" | "ready" | "deciding" | "decided" | "closed";
 export type RoomRole = "host" | "member";
@@ -16,6 +16,7 @@ export type SharedRoom = {
   state: RoomLifecycleState;
   brief: string;
   settings: DecisionSettings;
+  playback: PlaybackContext;
   participants: SharedRoomParticipant[];
   expiresAt: string;
 };
