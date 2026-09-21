@@ -1,4 +1,3 @@
-/* global process, console, fetch, AbortSignal */
 const args = process.argv.slice(2);
 
 const valueFor = (name) => {
