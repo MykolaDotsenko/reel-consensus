@@ -21,6 +21,7 @@ type IntentComposerProps = {
   isLoading: boolean;
   onChange: (value: string) => void;
   onInterpret: () => void;
+  readOnly?: boolean;
 };
 
 export function IntentComposer({
@@ -29,6 +30,7 @@ export function IntentComposer({
   isLoading,
   onChange,
   onInterpret,
+  readOnly = false,
 }: IntentComposerProps) {
   return (
     <section className="intent-card" aria-labelledby="intent-heading">
@@ -58,6 +60,7 @@ export function IntentComposer({
           maxLength={800}
           rows={4}
           placeholder="Something clever and funny, no horror, under 2 hours."
+          readOnly={readOnly}
           onChange={(event) => onChange(event.target.value)}
         />
         <span className="prompt-count">{value.length}/800</span>
@@ -70,6 +73,7 @@ export function IntentComposer({
             type="button"
             key={example.label}
             className="example-chip"
+            disabled={readOnly}
             onClick={() => onChange(example.value)}
           >
             {example.label}
@@ -81,7 +85,7 @@ export function IntentComposer({
         <button
           className="secondary-button"
           type="button"
-          disabled={!value.trim() || isLoading}
+          disabled={readOnly || !value.trim() || isLoading}
           onClick={onInterpret}
         >
           {isLoading ? "Understanding…" : "Use this brief"}
