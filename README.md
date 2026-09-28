@@ -8,7 +8,9 @@ Reel Consensus is a **group movie decision engine**. It does not try to predict 
 
 ![Reel Consensus desktop group movie decision engine](docs/screenshots/reel-consensus-desktop.png)
 
-There is no public production URL claimed at the moment. The repository includes deployment/activation tooling for Vercel, TMDB and optional shared rooms.
+**GitHub Pages demo:** https://mykoladotsenko.github.io/reel-consensus/
+
+GitHub Pages hosts the static, credential-free decision flow. Server-side TMDB/OpenRouter endpoints and optional shared-room infrastructure remain deployment-specific integrations.
 
 ## The decision problem
 
