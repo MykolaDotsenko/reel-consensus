@@ -309,7 +309,7 @@ export default function App() {
         <a className="brand" href="#top" aria-label="Reel Consensus home">
           <img
             className="brand-lockup"
-            src="/brand/reel-consensus-lockup.svg"
+            src={`${import.meta.env.BASE_URL}brand/reel-consensus-lockup.svg`}
             alt="Reel Consensus"
           />
         </a>
@@ -736,7 +736,7 @@ export default function App() {
       <footer className="site-footer page-width">
         <div className="footer-brand">
           <img
-            src="/brand/reel-consensus-mark.svg"
+            src={`${import.meta.env.BASE_URL}brand/reel-consensus-mark.svg`}
             alt=""
             aria-hidden="true"
           />
